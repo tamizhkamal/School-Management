@@ -1,0 +1,161 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>School Management</title>
+  <link rel="shortcut icon" type="image/png" href="{% static 'admin/images/logos/favicon.png' %}" />
+  <link rel="stylesheet" href="{% static 'admin/css/styles.min.css' %}" />
+  <style>
+    .left-sidebar {
+      transition: all 0.3s ease-in-out;
+      width: 260px;
+    }
+    .left-sidebar.active {
+      margin-left: -260px;
+    }
+    .hamburger {
+      font-size: 22px;
+      cursor: pointer;
+      padding: 10px 15px;
+    }
+    {% comment %} .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 15px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #ddd;
+    } {% endcomment %}
+     .topbar {
+  position: fixed;      /* Fix at top */
+  top: 0;               /* Start from top */
+  left: 0;              /* Align to left */
+  width: 100%;          /* Full width */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 15px;
+  background: #f8f9fa;
+  border-bottom: 1px solid #ddd;
+  z-index: 1000;        /* Make sure it stays above other content */
+}
+
+    .sidebar-close-btn {
+      font-size: 20px;
+      cursor: pointer;
+    }
+    /* page content spacing */
+    .content-wrapper {
+      margin-left: 260px;
+      transition: margin-left 0.3s ease-in-out;
+      padding: 20px;
+    }
+    .left-sidebar.active ~ .content-wrapper {
+      margin-left: 0;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-wrapper" data-layout="vertical" data-navbarbg="skin6" data-sidebartype="full"
+    data-sidebar-position="fixed" data-header-position="fixed">
+
+    <!-- 🔹 Topbar with Hamburger & logo -->
+    <div class="topbar">
+      <div class="d-flex align-items-center gap-3">
+        <div id="hamburgerBtn" class="hamburger">
+          <i class="ti ti-menu-2"></i>
+        </div>
+        <a href="{% url 'admin_dash' %}" class="text-nowrap logo-img">
+          <img src="{% static 'images/logo/logo_03.png' %}" height="50" alt="logo" />
+        </a>
+      </div>
+      <div class="d-flex align-items-center">
+          <a href="{% url 'logout_view' %}" class="text-decoration-none">
+              <i class="ti ti-user"></i>
+          </a>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Start -->
+    <aside class="left-sidebar">
+      <div>
+        <div class="brand-logo d-flex align-items-center justify-content-between">
+          <a href="{% url 'admin_dash' %}" class="text-nowrap logo-img">
+            <img src="{% static 'admin/images/logos/logo.svg' %}" alt="" />
+          </a>
+          <div class="sidebar-close-btn d-xl-none d-block" id="sidebarCollapse">
+            <i class="ti ti-x"></i>
+          </div>
+        </div>
+
+        <nav class="sidebar-nav scroll-sidebar" data-simplebar="">
+          <ul id="sidebarnav">
+            <li class="nav-small-cap">
+              <iconify-icon icon="solar:menu-dots-linear" class="nav-small-cap-icon fs-4"></iconify-icon>
+              <span class="hide-menu">Home</span>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'admin_dash' %}">
+                <i class="ti ti-atom"></i>
+                <span class="hide-menu">Dashboard</span>
+              </a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'Student_create' %}"><i class="ti ti-user-circle"></i><span class="hide-menu">Student Management</span></a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'Mark_Management' %}"><i class="ti ti-list-details"></i><span class="hide-menu">Mark Management</span></a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'Addendance_Management' %}"><i class="ti ti-calendar"></i><span class="hide-menu">Attendance</span></a>
+            </li>
+            <li class="sidebar-item">
+              <a class="sidebar-link" href="{% url 'Student_list' %}"><i class="ti ti-calendar"></i><span class="hide-menu">Students Details</span></a>
+            </li>
+            {% comment %} <li class="sidebar-item">
+              <a class="sidebar-link has-arrow" href="javascript:void(0)">
+                <i class="ti ti-layout-grid"></i><span class="hide-menu">Front Pages</span>
+              </a>
+              <ul class="collapse first-level">
+                <li class="sidebar-item"><a class="sidebar-link" href="#"><i class="ti ti-circle"></i>Homepage</a></li>
+                <li class="sidebar-item"><a class="sidebar-link" href="#"><i class="ti ti-circle"></i>About Us</a></li>
+              </ul>
+            </li> {% endcomment %}
+          </ul>
+        </nav>
+      </div>
+    </aside>
+    <!-- Sidebar End -->
+
+    <!-- 🔹 Page Content -->
+    <div class="content-wrapper">
+      {% block content %}
+      <h2>Dashboard Content</h2>
+      {% endblock %}
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="{% static 'admin/libs/jquery/dist/jquery.min.js' %}"></script>
+  <script src="{% static 'admin/libs/bootstrap/dist/js/bootstrap.bundle.min.js' %}"></script>
+  <script src="{% static 'admin/js/sidebarmenu.js' %}"></script>
+  <script src="{% static 'admin/js/app.min.js' %}"></script>
+  <script src="{% static 'admin/libs/apexcharts/dist/apexcharts.min.js' %}"></script>
+  <script src="{% static 'admin/libs/simplebar/dist/simplebar.js' %}"></script>
+  <script src="{% static 'admin/js/dashboard.js' %}"></script>
+  <script src="https://cdn.jsdelivr.net/npm/iconify-icon@1.0.8/dist/iconify-icon.min.js"></script>
+
+  <script>
+    $(document).ready(function () {
+      $("#hamburgerBtn, #sidebarCollapse").on("click", function () {
+        $(".left-sidebar").toggleClass("active");
+      });
+    });
+  </script>
+</body>
+</html>

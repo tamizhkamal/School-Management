@@ -1,0 +1,334 @@
+{% extends 'admin/admin-dash.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+    <br>
+    <br>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="d-md-flex button-group mb-4">
+                <button class="btn me-1 mb-1 bg-primary-subtle text-primary px-4 fs-4"
+                        data-bs-toggle="modal" data-bs-target="#markModal">
+                    Add 10th Mark Details
+                </button>
+            </div>
+        </div>
+        
+        <div class="col-md-6 d-flex justify-content-end">
+            <button class="btn me-1 mb-1 bg-primary-subtle text-primary px-4 fs-4" data-bs-toggle="modal" data-bs-target="#bulkModal">
+                Bulk Mark Details
+            </button>
+        </div>
+
+    </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="markModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <form method="POST">
+          {% csrf_token %}
+          <div class="modal-header">
+            <h4 class="modal-title">Add Student Marks</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+
+            <div class="row">
+              <div class="col-md-6">
+                <label class="form-label">Select Student</label>
+                <select name="user_id" class="form-select">
+                <option value="">-- Select User --</option>
+                  {% for user in users %}
+                  <option value="{{ user.id }}">{{ user.name }} S/O {{ user.father_name }}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            
+              <div class="col-md-6">
+                <label class="form-label">Test Type</label>
+                <select name="exam_name" class="form-select">
+                    <option value="">-- Select Exam --</option>
+                    <option value="daily">Daily Test</option>
+                    <option value="weekly">Week Test</option>
+                    <option value="monthly">Month Test</option>
+                    <option value="quarterly">Quarterly Test</option>
+                    <option value="hulf">Hulf Test</option>
+                    <option value="annual">Annual Test</option>
+                </select>
+
+              </div>
+            </div>
+            <br>
+            <table class="table table-bordered" id="subjectTable">
+              <thead>
+                <tr>
+                  <th>Subject Name</th>
+                  <th>Marks</th>
+                  <th>Pass/Fail</th>
+                  <th>Fail Reason (if any)</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><input type="text" name="subject_name[]" class="form-control" placeholder="Subject"></td>
+                  <td><input type="number" name="marks_obtained[]" class="form-control" placeholder="Marks"></td>
+                  <td>
+                    <select name="pass_fail[]" class="form-select">
+                      <option value="Pass">Pass</option>
+                      <option value="Fail">Fail</option>
+                    </select>
+                  </td>
+                  <td><input type="text" name="fail_reason[]" class="form-control" placeholder="Reason"></td>
+                  <td><button type="button" class="btn btn-danger removeRow">X</button></td>
+                </tr>
+              </tbody>
+            </table>
+
+            <button type="button" class="btn btn-sm btn-success" id="addRow">+ Add Subject</button>
+          </div>
+
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Marks</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  
+  <!-- bulk Modal -->
+  <div class="modal fade" id="bulkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <form method="POST" enctype="multipart/form-data" action="{% url 'import_marks' %}">
+          {% csrf_token %}
+          <div class="modal-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="px-4 pt-9 pb-6 d-none d-lg-block">
+                        <h5>Mark Details Bulk Uploads</h5>
+                    </div>
+                </div>
+                <br>
+                <div class="col-md-6">
+                    <a href="/media/sample_document/mark_details.xlsx" class="btn btn-success" download>
+                        <i class="ti ti-download"></i> Download Sample Excel
+                    </a>
+                </div>
+                <br>
+                <div class="row">
+                    <input class="form-control" type="file" name="excel_file" id="formFile">
+                </div>
+            </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn btn-primary">Save Marks</button>
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+  <!-- Student Mark Table -->
+<div class="card mt-4">
+  <div class="card-body">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="px-4 pt-9 pb-6 d-none d-lg-block">
+                <h5>10th Mark Details</h5>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="px-4 pt-9 pb-6 d-none d-lg-block">
+                <form class="position-relative" method="get" action="">
+                    <input type="text" name="q" value="{{ query }}" class="form-control search-chat py-2 ps-5" id="text-srh" placeholder="Search...">
+                    <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+                </form>
+            </div>
+        </div>
+    </div>
+    <table class="table table-bordered table-hover align-middle" id="studentMarkTable">
+      <thead class="table-light">
+        <tr>
+          <th>Student Name</th>
+          <th>Phone Number</th>
+          <th>Email</th>
+          <th>Test Type</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for mark in marks %}
+        <tr class="student-row" data-student="{{ mark.id }}">
+          <td>{{ mark.user.name }}</td>
+          <td>{{ mark.user.phone_number }}</td>
+          <td>{{ mark.user.email }}</td>
+          <td>{{ mark.exam_name }}</td>
+          <td><button class="btn btn-sm btn-info toggle-btn">View Marks</button></td>
+        </tr>
+
+        <!-- Hidden Subject Details Row -->
+        <tr class="subject-row" id="subject-{{ mark.id }}" style="display:none;">
+          <td colspan="5">
+            <table class="table table-sm mb-0 table-bordered">
+              <thead class="table-secondary">
+                <tr>
+                  <th>Subject</th>
+                  <th>Marks</th>
+                  <th>Status</th>
+                  <th>Fail Reason</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for sub in mark.subject_marks.all %}
+                <tr>
+                  <td>{{ sub.subject_name }}</td>
+                  <td>{{ sub.marks_obtained }}</td>
+                  <td>
+                    {% if sub.pass_fail == 'Pass' %}
+                    <span class="text-success fw-bold">Pass</span>
+                    {% else %}
+                    <span class="text-danger fw-bold">Fail</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ sub.fail_reason }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">No subject marks available</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+     <!-- Pagination -->
+    <div class="d-flex align-items-center justify-content-end py-1">                        
+        <div class="d-flex align-items-center justify-content-end py-1">
+            <p class="mb-0 fs-6 me-2">Rows per page:</p>
+            <select class="form-select w-auto me-3 py-1" aria-label="Rows per page" onchange="changeRowsPerPage(this)">
+                <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
+                <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+            </select>
+
+            <p class="mb-0 fs-6 me-3">
+                {{ marks.start_index }}–{{ marks.end_index }} of {{ marks.paginator.count }}
+            </p>
+
+            <nav>
+                <ul class="pagination mb-0">
+                    {% if marks.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ marks.previous_page_number }}">
+                                <i class="ti ti-chevron-left"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="ti ti-chevron-left"></i></span>
+                        </li>
+                    {% endif %}
+
+                    {% for num in marks.paginator.page_range %}
+                        {% if marks.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if marks.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ marks.next_page_number }}">
+                                <i class="ti ti-chevron-right"></i>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link"><i class="ti ti-chevron-right"></i></span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const searchInput = document.getElementById("text-srh");
+  const rows = document.querySelectorAll("#studentMarkTable tbody tr.student-row");
+
+  searchInput.addEventListener("keyup", function() {
+    const value = this.value.toLowerCase();
+
+    rows.forEach(row => {
+      const subjectRow = document.querySelector(`#subject-${row.dataset.student}`);
+      const text = row.textContent.toLowerCase();
+      const match = text.indexOf(value) > -1;
+      
+      row.style.display = match ? "" : "none";
+      if (subjectRow) subjectRow.style.display = "none"; // hide nested row on search
+    });
+  });
+});
+function changeRowsPerPage(select) {
+    const perPage = select.value;
+    const params = new URLSearchParams(window.location.search);
+    params.set('per_page', perPage);
+    params.set('page', 1); // go to first page
+    window.location.search = params.toString();
+}
+
+</script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const tr = this.closest('tr');
+      const studentId = tr.dataset.student;
+      const subjectRow = document.getElementById('subject-' + studentId);
+
+      if (subjectRow.style.display === 'none') {
+        subjectRow.style.display = 'table-row';
+        this.textContent = 'Hide Marks';
+      } else {
+        subjectRow.style.display = 'none';
+        this.textContent = 'View Marks';
+      }
+    });
+  });
+});
+</script>
+
+
+<script>
+document.getElementById('addRow').addEventListener('click', function(){
+  let row = document.querySelector('#subjectTable tbody tr').cloneNode(true);
+  document.querySelector('#subjectTable tbody').appendChild(row);
+});
+
+document.addEventListener('click', function(e){
+  if(e.target.classList.contains('removeRow')){
+    e.target.closest('tr').remove();
+  }
+});
+</script>
+
+{% endblock %}

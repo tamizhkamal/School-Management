@@ -1,0 +1,239 @@
+{% extends 'admin/admin-dash.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid mt-5">
+
+    <!-- Button to trigger Extra Large Modal -->
+     <div class="row">
+        <div class="col-md-6">
+            <div class="d-md-flex button-group mb-4">
+                <div class="" style="padding: 2%;">
+                    <button class="btn btn-primary d-flex align-items-center px-3 gap-6" 
+                            data-bs-toggle="modal" data-bs-target="#bs-example-modal-xlg">
+                        Student attendance
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 d-flex justify-content-end">
+            <div class="d-md-flex button-group mb-4">
+                <div class="" style="padding: 2%;">
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#bulkModal_students">
+                        Bulk Data Upload
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+        
+
+    <div class="modal fade" id="bulkModal_students" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <form method="POST" enctype="multipart/form-data" action="{% url 'import_students' %}">
+                    {% csrf_token %}
+                    <div class="modal-body">
+                        <h5>Mark Details Bulk Uploads</h5>
+                        <a href="/media/sample_document/student_details.xlsx" class="btn btn-success" download>
+                            Download Sample Excel
+                        </a>
+                        <input class="form-control mt-3" type="file" name="excel_file" required>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Save Marks</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+        
+        <!-- Modal -->
+        <div class="modal fade" id="bs-example-modal-xlg" tabindex="-1" 
+             aria-labelledby="bs-example-modal-lg" aria-hidden="true">
+            <div class="modal-dialog modal-xl">
+                <div class="modal-content">
+                    <div class="modal-header d-flex align-items-center">
+                        <h4 class="modal-title" id="myLargeModalLabel">Student Create Form</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                aria-label="Close"></button>
+                    </div>
+
+                    <div class="modal-body">
+                        <div class="col-12">
+                            <div class="card card-body">
+                                
+                                <form class="form-horizontal" method="POST" enctype="multipart/form-data" action="{% url 'Addendance_Management' %}">
+                                    {% csrf_token %}
+                                    <div class="mb-3">
+                                        <label class="form-label">Select Student</label>
+                                        <select name="user_id" class="form-select">
+                                        <option value="">-- Select User --</option>
+                                        {% for user in users %}
+                                        <option value="{{ user.id }}">{{ user.name }} S/O {{ user.father_name }}</option>
+                                        {% endfor %}
+                                        </select>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <label class="form-label">Attendance Date
+                                        </label>
+                                        <input type="date" name='attendance_date' class="form-control"/>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="form-group mb-4">
+                                            <label class="mr-sm-2" for="inlineFormCustomSelect">Attendance Status</label>
+                                            <select class="form-select mr-sm-2" name="status" id="inlineFormCustomSelect">
+                                                <option selected>Choose...</option>
+                                                <option value="Present">Present</option>
+                                                <option value="Absent">Absent</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn bg-danger-subtle text-danger waves-effect" 
+                                                data-bs-dismiss="modal">
+                                            Close
+                                        </button>
+                                        <button type="submit" class="btn btn-primary">Submit</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Product List Table -->
+    <div class="product-list">
+        <div class="card">
+            <div class="card-body p-3">
+                <div class="d-flex justify-content-between align-items-center gap-6 mb-3">
+                    <form class="position-relative">
+                        <input type="text" class="form-control search-chat py-2 ps-5" 
+                               id="text-srh" placeholder="Search Product">
+                        <i class="ti ti-search position-absolute top-50 start-0 translate-middle-y fs-6 text-dark ms-3"></i>
+                    </form>
+                    <a class="fs-6 text-muted" href="javascript:void(0)" 
+                       data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Filter list">
+                        <i class="ti ti-filter"></i>
+                    </a>
+                </div>
+
+                <div class="table-responsive border rounded">
+                    <table class="table align-middle text-nowrap mb-0">
+                        <thead>
+                            <tr>
+                                {% comment %} <th scope="col"><input class="form-check-input" type="checkbox"></th> {% endcomment %}
+                                <th scope="col">Students</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Status</th>
+                                {% comment %} <th scope="col">Actions</th> {% endcomment %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% comment %} Repeat product rows dynamically using Django {% endcomment %}
+                            {% for day in data %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <p class="mb-0">{{ day.student.name }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <p class="mb-0">{{ day.date }}</p>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <p class="mb-0 ms-2">{{ day.status }}</p>
+                                    </div>
+                                </td>
+                                
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                   <!-- Pagination -->
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center py-1">
+                                <p class="mb-0 fs-6 me-2">Rows per page:</p>
+                                <select class="form-select w-auto me-3 py-1" aria-label="Rows per page" 
+                                        onchange="window.location.href='?per_page='+this.value">
+                                    <option value="5" {% if per_page == 5 %}selected{% endif %}>5</option>
+                                    <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+                                    <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-6">
+                            <div class="d-flex align-items-center justify-content-end py-1">
+
+                                <p class="mb-0 fs-6 me-3">
+                                    {{ students.start_index }}–{{ students.end_index }} of {{ students.paginator.count }}
+                                </p>
+
+                                <nav>
+                                    <ul class="pagination mb-0">
+                                        {% if students.has_previous %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ students.previous_page_number }}&per_page={{ per_page }}">
+                                                    <i class="ti ti-chevron-left"></i>
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="ti ti-chevron-left"></i></span>
+                                            </li>
+                                        {% endif %}
+
+                                        {% comment %} Show max 5 page numbers at a time {% endcomment %}
+                                        {% for num in students.paginator.page_range %}
+                                            {% if num >= students.number|add:-2 and num <= students.number|add:2 %}
+                                                {% if students.number == num %}
+                                                    <li class="page-item active">
+                                                        <span class="page-link">{{ num }}</span>
+                                                    </li>
+                                                {% else %}
+                                                    <li class="page-item">
+                                                        <a class="page-link" href="?page={{ num }}&per_page={{ per_page }}">{{ num }}</a>
+                                                    </li>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+
+                                        {% if students.has_next %}
+                                            <li class="page-item">
+                                                <a class="page-link" href="?page={{ students.next_page_number }}&per_page={{ per_page }}">
+                                                    <i class="ti ti-chevron-right"></i>
+                                                </a>
+                                            </li>
+                                        {% else %}
+                                            <li class="page-item disabled">
+                                                <span class="page-link"><i class="ti ti-chevron-right"></i></span>
+                                            </li>
+                                        {% endif %}
+                                    </ul>
+                                </nav>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
